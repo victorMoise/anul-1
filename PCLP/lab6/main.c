@@ -24,12 +24,21 @@ void output_vector(int n, int *v) {
 }
 
 
+int **create_matrix(int rows, int cols) {
+    int **matrix = (int **)calloc(rows, sizeof(int *));
+    for (int i = 0; i < rows; i++) {
+        matrix[i] = (int *)calloc(cols, sizeof(int));
+    }
+    return matrix;
+}
+
+//crapa doar cand rows > cols ?????????
 int **create_input_matrix(int *rows, int *cols) {
     printf("Numarul de linii: ");
     scanf("%d", rows);
     printf("Numarul de coloane: ");
     scanf("%d", cols);
-    int **matrix = calloc(*rows, sizeof(int));
+    int **matrix = (int **)calloc(*rows, sizeof(int *));
     for (int i = 0; i < *rows; i++) {
         matrix[i] = (int *)calloc(*cols, sizeof(int));
     }
@@ -525,11 +534,85 @@ void pb14_main() {
     printf("Liniile impare au fost ordnate descrescator\n");
     printf("Matricea dupa sortare:\n");
     output_matrix(rows, cols, a);
+
+    free(a);
+    return;
+}
+
+
+void swap_vars(int *a, int *b) {
+    int aux= *a;
+    *a = *b;
+    *b = aux;
+    return;
+}
+
+
+int sum_arr(int n, int *v) {
+    int sum = 0;
+    for (int i = 0; i < n; i++) {
+        sum += v[i];
+    }
+    return sum;
+}
+
+
+void pb15_main() {
+    int rows, cols, **mat;
+    mat = create_input_matrix(&rows, &cols);
+
+    for (int i = 0; i < rows - 1; i++) {
+        for (int j = i + 1; j < rows; j++) {
+            int sum1 = sum_arr(cols, mat[i]);
+            int sum2 = sum_arr(cols, mat[j]);
+            if (sum1 > sum2) {
+                for (int k = 0; k < cols; k++) {
+                    swap_vars(&mat[i][k], &mat[j][k]);
+                }
+            }
+        }
+    }
+    printf("Noua matrice:\n");
+    output_matrix(rows, cols, mat);
+    free(mat);
+    return;
+}
+
+
+int is_sorted_arr(int n, int *v, int (*compare)(int, int)) {
+    for (int i = 0; i < n - 1; i++) {
+        if (!(*compare)(v[i], v[i + 1])) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+
+void pb16_main() {
+    int rows, cols, rows_new_mat = 0;
+    int **mat = create_input_matrix(&rows, &cols);
+    int **new_mat = (int **)calloc(rows, sizeof(int));
+
+    for (int i = 0; i < rows; i++) {
+        if (is_sorted_arr(cols, mat[i], sort_ascending) || is_sorted_arr(cols, mat[i], sort_descending)) {
+            new_mat[rows_new_mat] = (int *)calloc(cols, sizeof(int));
+            for (int j = 0; j < cols; j++) {
+                new_mat[rows_new_mat][j] = mat[i][j];
+            }
+            rows_new_mat += 1;
+        }
+    } 
+
+    printf("Matricea creata:\n");
+    output_matrix(rows_new_mat, cols, new_mat);
+    free(mat);
+    free(new_mat);
     return;
 }
 
 
 int main() {
-    pb14_main();
+    pb16_main();
     return 0;
 }
